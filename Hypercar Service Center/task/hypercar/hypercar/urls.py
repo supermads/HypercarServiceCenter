@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 from django.views.generic import RedirectView
-from tickets.views import welcome_view, MenuView, TicketView
+from tickets.views import welcome_view, MenuView, TicketView, ProcessingView
 
 
 urlpatterns = [
@@ -23,4 +23,5 @@ urlpatterns = [
     path('welcome/', welcome_view),
     path('menu/', MenuView.as_view()),
     path('get_ticket/<str:service>', TicketView.as_view()),
+    path('processing', ProcessingView.as_view()),
 ]
