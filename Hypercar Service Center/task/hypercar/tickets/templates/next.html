@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Next</title>
+</head>
+<body>
+    {% if next_ticket %}
+        <div>Next ticket #{{ next_ticket }}</div>
+    {% else %}
+        <div>Waiting for the next client</div>
+    {% endif %}
+    <div>{{ line_of_cars }}</div>
+</body>
+</html>

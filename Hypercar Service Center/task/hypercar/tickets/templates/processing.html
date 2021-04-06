@@ -8,7 +8,7 @@
     <div>Change oil queue: {{ oil_len }}</div>
     <div>Inflate tires queue: {{ tire_len }}</div>
     <div>Get diagnostic queue: {{ diagnostic_len }}</div>
-    <form method="post">{% csrf_token %}
+    <form method="post" action="/processing">{% csrf_token %}
         <button type="submit">Process next</button>
     </form>
 </body>

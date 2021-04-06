@@ -1,6 +1,6 @@
 from django.views import View
 from django.http.response import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 
 def welcome_view(request):
@@ -18,6 +18,17 @@ line_of_cars = {
     "diagnostic": []
     }
 curr_ticket = 0
+next_ticket = None
+
+
+def get_service_lens():
+    global line_of_cars
+
+    oil_len = len(line_of_cars["change_oil"])
+    tire_len = len(line_of_cars["inflate_tires"])
+    diagnostic_len = len(line_of_cars["diagnostic"])
+
+    return oil_len, tire_len, diagnostic_len
 
 
 class TicketView(View):
@@ -30,9 +41,11 @@ class TicketView(View):
 
         curr_ticket += 1
 
-        oil_wait = len(line_of_cars["change_oil"]) * oil_time
-        tire_wait = len(line_of_cars["inflate_tires"]) * tire_time
-        diagnostic_wait = len(line_of_cars["diagnostic"]) * diagnostic_time
+        oil_len, tire_len, diagnostic_len = get_service_lens()
+
+        oil_wait = oil_len * oil_time
+        tire_wait = tire_len * tire_time
+        diagnostic_wait = diagnostic_len * diagnostic_time
 
         if curr_ticket == 3:
             if oil_wait:
@@ -61,10 +74,30 @@ class TicketView(View):
 
 class ProcessingView(View):
     def get(self, request, *args, **kwargs):
-        global line_of_cars, curr_ticket
+        global line_of_cars
 
-        oil_len = len(line_of_cars["change_oil"])
-        tire_len = len(line_of_cars["inflate_tires"])
-        diagnostic_len = len(line_of_cars["diagnostic"])
+        oil_len, tire_len, diagnostic_len = get_service_lens()
 
         return render(request, "processing.html", context={"oil_len": oil_len, "tire_len": tire_len, "diagnostic_len": diagnostic_len})
+
+    def post(self, request, *args, **kwargs):
+        global line_of_cars, next_ticket
+
+        oil_len, tire_len, diagnostic_len = get_service_lens()
+
+        if oil_len:
+            next_ticket = line_of_cars["change_oil"].pop(0)
+        elif tire_len:
+            next_ticket = line_of_cars["inflate_tires"].pop(0)
+        elif diagnostic_len:
+            next_ticket = line_of_cars["diagnostic"].pop(0)
+
+        return redirect("/next")
+
+
+class NextView(View):
+    def get(self, request, *args, **kwargs):
+        global next_ticket, line_of_cars
+
+        return render(request, "next.html", context={"next_ticket": next_ticket, "line_of_cars": line_of_cars})
+
